@@ -51,7 +51,6 @@
 //	TIM16_CH1:PA6
 //	TIM17_CH1:PA7
 
-
 // Using Nucleo-F072RB board for prototyping or using SERVOBoard with STM32F030K6T6
 #define NUCLEO
 // USART can be used for debugging
