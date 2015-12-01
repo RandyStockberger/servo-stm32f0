@@ -88,42 +88,50 @@
 #define	SERVO3_PIN		10
 #define	SERVO4_PIN		11
 
-// Amount to move each servo on each timer tick
-#define SERVO_DELTA	3
-//
 // Maximum and minimum PWM values
 // PWM_MIN - electrify standard absolute minimum is approx 200
 #define PWM_MIN			1150	// Clockwise when looking at shaft
+
 // PWM_MAX - electrify standard absolute maximum is approx 2280
 #define PWM_MAX			1700
+
 // Initialize to mid point
 #define PWM_MID			((PWM_MIN+PWM_MAX)/2)
+
 //
 #define PWM_TIMER_HZ	1000000UL
+
 // Prescale PWM timer to run at PWM_TIMER_HZ
 #define PWM_PRESCALE	(48-1)
+
 // PWM timer period is 20mS (20,000uS)
 #define PWM_MAX_COUNT	(PWM_TIMER_HZ)/(HB_HZ)
-//
+
 // PWM speed -- number of seconds to go from end to end
 #define PWM_SPEED		5
+
 // PWM pulses per second on each servo
 #define PWM_HZ			(PWM_TIMER_HZ)/(PWM_MAX_COUNT)
-// How much to increment(decrement) servo position for each servo pulse
-#define PWM_STEPSIZE	(PWM_MAX-PWM_MIN)/(PWM_SPEED*PWM_HZ)
+
+// How much to increment(decrement) servo position for each servo timer tic
+#define SERVO_DELTA		(PWM_MAX-PWM_MIN)/(PWM_SPEED*PWM_HZ)
+
+#define SERVO_BUMP		((PWM_MAX - PWM_MIN) / 40)
 
 typedef struct {
-	GPIO_TypeDef *	Port;
-	uint8_t			Pin;
-	uint16_t		currentPos;
-	uint16_t		targetPos;
+	GPIO_TypeDef *	Port;		// GPIO port for this servo
+	uint8_t			Pin;		// GPIO pin for this servo
+	uint16_t		currentPos;	// Current position
+	uint16_t		targetPos;	// Final position at end of servo move
+	uint16_t		minPos;		// Servo position in minimum state
+	uint16_t		maxPos;		// Servo position in maximum state
 } servo_t;
 
 servo_t servo[SERVO_COUNT] = {
-	{ GPIOA,	SERVO1_PIN, (PWM_MID), (PWM_MID) },
-	{ GPIOA,	SERVO2_PIN, (PWM_MID), (PWM_MID) },
-	{ GPIOA,	SERVO3_PIN, (PWM_MID), (PWM_MID) },
-	{ GPIOA,	SERVO4_PIN, (PWM_MID), (PWM_MID) },
+	{ GPIOA,	SERVO1_PIN, (PWM_MID), (PWM_MID), PWM_MIN, PWM_MAX },
+	{ GPIOA,	SERVO2_PIN, (PWM_MID), (PWM_MID), PWM_MIN, PWM_MAX },
+	{ GPIOA,	SERVO3_PIN, (PWM_MID), (PWM_MID), PWM_MIN, PWM_MAX },
+	{ GPIOA,	SERVO4_PIN, (PWM_MID), (PWM_MID), PWM_MIN, PWM_MAX },
 };
 
 // ----------------------------------------------------------------------------
@@ -220,8 +228,8 @@ led_t led[LED_COUNT] = {
 
 // ============================================================================
 
-volatile uint32_t curTick;
-
+volatile uint32_t	curTick;
+unsigned int		lastBtn = SERVO_COUNT;
 
 // ============================================================================
 
@@ -460,23 +468,60 @@ int usartTxEmpty()
 
 // ============================================================================
 // ============================================================================
-// btnCheck -- Change servo/turnout state when the button changes state
+// btnCheck -- Check buttons to detect a command from the user
 void btnCheck( void )
 {
+	// Check the servo buttons
 	for ( int idx=0; idx<SERVO_COUNT; ++idx ) {
 		if ( btnCheckState( idx ) ) {
 			button[idx].Changed = false;
 
+			lastBtn = idx;
+
 			if ( button[idx].State ) {
 				ledOn( idx*2 );
 				ledOff( idx*2 + 1 );
-				servo[idx].targetPos = PWM_MIN;
+				servo[idx].targetPos = servo[idx].minPos;
 			}
 			else {
 				ledOff( idx*2 );
 				ledOn( idx*2 + 1 );
-				servo[idx].targetPos = PWM_MAX;
+				servo[idx].targetPos = servo[idx].maxPos;
 			}
+		}
+	}
+
+	// lastBtn == SERVO_COUNT if no turnout has moved since startup
+	if ( lastBtn < SERVO_COUNT ) {
+		// Check BTNPLUS
+		// BTNPLUS increases the servo's range of travel 
+		// If last servo to move is in minPos then BTNPLUS sets a smaller minimum
+		// and if it is at maxPos then BTNPLUS sets a larger maximum
+		if ( btnCheckState( BTNPLUS && (button[BTNPLUS].State==BTN_DOWN) ) ) {
+			button[BTNPLUS].Changed = false;
+			// Last move was to minPos
+			if ( servo[lastBtn].targetPos == servo[lastBtn].minPos ) {
+				servo[lastBtn].minPos -= SERVO_BUMP;			// Decrement minPos
+			}
+			else {
+				servo[lastBtn].maxPos += SERVO_BUMP;			// Increment maxPos
+			}
+			servo[lastBtn].targetPos = servo[lastBtn].maxPos;	// and update target
+		}
+
+		// Check BTNMINUS
+		// BTNMINUS decreases the servo's range of travel 
+		// If last servo to move is in minPos then BTNMINUS sets a larger minimum
+		// and if it is at maxPos BTNMINUS sets a smaller maximum
+		if ( btnCheckState( BTNMINUS ) && (button[BTNMINUS].State==BTN_DOWN) ) {
+			button[BTNMINUS].Changed = false;
+			if ( servo[lastBtn].targetPos == servo[lastBtn].minPos ) {
+				servo[lastBtn].minPos += SERVO_BUMP;			// Increment minPos
+			}
+			else {
+				servo[lastBtn].maxPos -= SERVO_BUMP;			// Decrement maxPos
+			}
+			servo[lastBtn].targetPos = servo[lastBtn].minPos;	// and update target
 		}
 	}
 }
