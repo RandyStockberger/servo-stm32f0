@@ -491,7 +491,7 @@ void btnCheck( void )
 		}
 	}
 
-	// lastBtn == SERVO_COUNT if no turnout has moved since startup
+	// If nothing has moved since the last startup lastBtn will equal SERVO_COUNT
 	if ( lastBtn < SERVO_COUNT ) {
 		// Check BTNPLUS
 		// BTNPLUS increases the servo's range of travel 
@@ -502,11 +502,18 @@ void btnCheck( void )
 			// Last move was to minPos
 			if ( servo[lastBtn].targetPos == servo[lastBtn].minPos ) {
 				servo[lastBtn].minPos -= SERVO_BUMP;			// Decrement minPos
+				if ( servo[lastBtn].minPos < PWM_MIN ) {
+					servo[lastBtn].minPos = PWM_MIN;			// Clip position of gone too far
+				}
+				servo[lastBtn].targetPos = servo[lastBtn].minPos; // and update target
 			}
 			else {
 				servo[lastBtn].maxPos += SERVO_BUMP;			// Increment maxPos
+				if ( servo[lastBtn].maxPos > PWM_MAX ) {
+					servo[lastBtn].maxPos = PWM_MAX;			// Clip if move would be too far
+				}
+				servo[lastBtn].targetPos = servo[lastBtn].maxPos; // and update target
 			}
-			servo[lastBtn].targetPos = servo[lastBtn].maxPos;	// and update target
 		}
 
 		// Check BTNMINUS
@@ -517,11 +524,18 @@ void btnCheck( void )
 			button[BTNMINUS].Changed = false;
 			if ( servo[lastBtn].targetPos == servo[lastBtn].minPos ) {
 				servo[lastBtn].minPos += SERVO_BUMP;			// Increment minPos
+				if ( servo[lastBtn].minPos > servo[lastBtn].maxPos ) {
+					servo[lastBtn].minPos = servo[lastBtn].maxPos;
+				}
+				servo[lastBtn].targetPos = servo[lastBtn].minPos;
 			}
 			else {
 				servo[lastBtn].maxPos -= SERVO_BUMP;			// Decrement maxPos
+				if ( servo[lastBtn].maxPos < servo[lastBtn].minPos ) {
+					servo[lastBtn].maxPos = servo[lastBtn].minPos;
+				}
+				servo[lastBtn].targetPos = servo[lastBtn].maxPos;	// and update target
 			}
-			servo[lastBtn].targetPos = servo[lastBtn].minPos;	// and update target
 		}
 	}
 }
