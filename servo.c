@@ -25,11 +25,11 @@
 // PA10			SERVO3				20				43		CN10:33
 // PA11			SERVO4				21				44		CN10:14
 // PA12			LED2A				22				45		CN10:12
-// PA13			LED2B/SWDIO			23				46		 CN7:13
-// PA14			LED3A/SWCLK			24				49		 CN7:15
-// PA15			LED3B				25				50		 CN7:17
-// PB3								26				55		CN10:31
-// PB4								27				56		CN10:27
+// PA13			SWDIO				23				46		 CN7:13
+// PA14			SWCLK				24				49		 CN7:15
+// PA15			LED2B				25				50		 CN7:17
+// PB3			LED3A				26				55		CN10:31
+// PB4			LED3B				27				56		CN10:27
 // PB5			DCCIN				28				57		CN10:29
 // PB6			LED4A				29				58		CN10:17
 // PB7			LED4B				30				59		 CN7:21
@@ -76,25 +76,17 @@
 
 // There are 4 servos
 #define SERVO_COUNT		4
-//
+
+#define SERVO1			0
+#define SERVO2			1
+#define SERVO3			2
+#define SERVO4			3
+
 // Servo pins
-//#define SERVO_GPIO		GPIOA
 #define	SERVO1_PIN		 8
 #define	SERVO2_PIN		 9
 #define	SERVO3_PIN		10
 #define	SERVO4_PIN		11
-
-typedef struct {
-	GPIO_TypeDef *	Port;
-	uint8_t			Pin;
-} servo_t;
-
-servo_t servo[SERVO_COUNT] = {
-	{ GPIOA,	SERVO1_PIN },
-	{ GPIOA,	SERVO2_PIN },
-	{ GPIOA,	SERVO3_PIN },
-	{ GPIOA,	SERVO4_PIN },
-};
 
 // Amount to move each servo on each timer tick
 #define SERVO_DELTA	3
@@ -104,8 +96,8 @@ servo_t servo[SERVO_COUNT] = {
 #define PWM_MIN			1150	// Clockwise when looking at shaft
 // PWM_MAX - electrify standard absolute maximum is approx 2280
 #define PWM_MAX			1700
-// PWM Duty Cycle
-#define PWM_DUTY		1500
+// Initialize to mid point
+#define PWM_MID			((PWM_MIN+PWM_MAX)/2)
 //
 #define PWM_TIMER_HZ	1000000UL
 // Prescale PWM timer to run at PWM_TIMER_HZ
@@ -120,19 +112,40 @@ servo_t servo[SERVO_COUNT] = {
 // How much to increment(decrement) servo position for each servo pulse
 #define PWM_STEPSIZE	(PWM_MAX-PWM_MIN)/(PWM_SPEED*PWM_HZ)
 
+typedef struct {
+	GPIO_TypeDef *	Port;
+	uint8_t			Pin;
+	uint16_t		currentPos;
+	uint16_t		targetPos;
+} servo_t;
+
+servo_t servo[SERVO_COUNT] = {
+	{ GPIOA,	SERVO1_PIN, (PWM_MID), (PWM_MID) },
+	{ GPIOA,	SERVO2_PIN, (PWM_MID), (PWM_MID) },
+	{ GPIOA,	SERVO3_PIN, (PWM_MID), (PWM_MID) },
+	{ GPIOA,	SERVO4_PIN, (PWM_MID), (PWM_MID) },
+};
+
 // ----------------------------------------------------------------------------
 // Button Defines
 //
 // Number of buttons
 #define BTN_COUNT		6
 
+#define BTN1			0
+#define BTN2			1
+#define BTN3			2
+#define BTN4			3
+#define BTNPLUS			4
+#define BTNMINUS		5
+
 // Buttons are on GPIOA and GPIOB
-#define BTN1_PIN		0
-#define BTN2_PIN		1
-#define BTN3_PIN		3
-#define BTN4_PIN		4
-#define BTNPLUS_PIN		5
-#define BTNMINUS_PIN	6
+#define BTN1_PIN		4
+#define BTN2_PIN		5
+#define BTN3_PIN		6
+#define BTN4_PIN		7
+#define BTNPLUS_PIN		0
+#define BTNMINUS_PIN	1
 
 typedef enum { BTN_DOWN, BTN_UP } btnstate_t;
 
@@ -145,24 +158,13 @@ typedef struct {
 
 btn_t button[BTN_COUNT] = {
 	{ GPIOA, BTN1_PIN,		BTN_UP, true },	// BTN1
-	{ GPIOA, BTN1_PIN,		BTN_UP, true },	// BTN2
-	{ GPIOA, BTN1_PIN,		BTN_UP, true },	// BTN3
-	{ GPIOA, BTN1_PIN,		BTN_UP, true },	// BTN4
+	{ GPIOA, BTN2_PIN,		BTN_UP, true },	// BTN2
+	{ GPIOA, BTN3_PIN,		BTN_UP, true },	// BTN3
+	{ GPIOA, BTN4_PIN,		BTN_UP, true },	// BTN4
 	{ GPIOB, BTNPLUS_PIN,	BTN_UP, true },	// BTNPLUS
 	{ GPIOB, BTNMINUS_PIN,	BTN_UP, true },	// BTNMINUS
 };
 
-// PA0			LED1A				 6				14		 CN7:28
-// PA1			LED1B				 7				15		 CN7:30
-// PA12			LED2A				22				45		CN10:12
-// PA13			LED2B/SWDIO			23				46		 CN7:13
-// PA14			LED3A/SWCLK			24				49		 CN7:15
-// PA15			LED3B				25				50		 CN7:17
-// PB6			LED4A				29				58		CN10:17
-// PB7			LED4B				30				59		 CN7:21
-// 
-// PWM outputs:
-//	TIM1_CH1:PA8
 // ----------------------------------------------------------------------------
 // LED Defines
 //
@@ -170,14 +172,21 @@ btn_t button[BTN_COUNT] = {
 #define LED_COUNT	8
 
 // Define LED locations
-#define LED_GPIO	GPIOA
+#define LED1A		0
+#define LED1B		1
+#define LED2A		2
+#define LED2B		3
+#define LED3A		4
+#define LED3B		5
+#define LED4A		6
+#define LED4B		7
 
 #define PIN_LED1A	0
 #define PIN_LED1B	1
 #define PIN_LED2A	12
-#define PIN_LED2B	13
-#define PIN_LED3A	14
-#define PIN_LED3B	15
+#define PIN_LED2B	15
+#define PIN_LED3A	3
+#define PIN_LED3B	4
 #define PIN_LED4A	6
 #define PIN_LED4B	7
 
@@ -187,15 +196,17 @@ typedef struct {
 } led_t;
 
 led_t led[LED_COUNT] = {
-	{ GPIOA, 0 },
-	{ GPIOA, 1 },
-	{ GPIOA, 12 },
-	{ GPIOA, 13 },
-	{ GPIOA, 14 },
-	{ GPIOA, 15 },
-	{ GPIOB, 6 },
-	{ GPIOB, 7 },
+	{ GPIOA, PIN_LED1A },
+	{ GPIOA, PIN_LED1B },
+	{ GPIOA, PIN_LED2A },
+	{ GPIOA, PIN_LED2B },
+	{ GPIOB, PIN_LED3A },
+	{ GPIOB, PIN_LED3B },
+	{ GPIOB, PIN_LED4A },
+	{ GPIOB, PIN_LED4B },
 };
+
+#ifdef USE_USART
 
 // ============================================================================
 // USART Defines
@@ -205,9 +216,12 @@ led_t led[LED_COUNT] = {
 #define USART_TX_PIN		2
 #define USART_RX_PIN		3
 
+#endif	// USE_USART
+
 // ============================================================================
 
 volatile uint32_t curTick;
+
 
 // ============================================================================
 
@@ -244,52 +258,18 @@ void configButtons( void )
 	}
 }
 
-#if 0
-
-// Initialize buttons as inputs with pullups enabled
 // ============================================================================
-void configButtons( void )
-{
-	// COnfig GPIOs as inputs, hi freq with pullups enabled
-	BTN_GPIO->MODER &= ~(	(0x03<<(BTN1_PIN*2)) | (0x03<<(BTN2_PIN*2)) |
-							(0x03<<(BTN3_PIN*2)) | (0x03<<(BTN4_PIN*2)) |
-							(0x03<<(BTNPLUS_PIN*2)) | (0x03<<(BTNMINUS_PIN*2)) );
-	// Push/Pull
-	BTN_GPIO->OTYPER &= ~(	(1<<BTN1_PIN) | (1<<BTN2_PIN) |
-							(1<<BTN3_PIN) | (1<<BTN4_PIN) |
-							(1<<BTNPLUS_PIN) | (1<<BTNMINUS_PIN) );
-	// Low speed
-	BTN_GPIO->OSPEEDR &=  (	(3<<(BTN1_PIN*2)) | (3<<(BTN2_PIN*2)) |
-							(3<<(BTN3_PIN*2)) | (3<<(BTN4_PIN*2)) |
-							(3<<(BTNPLUS_PIN*2)) | (3<<(BTNMINUS_PIN*2)) );
-	// Enable Pullups
-	BTN_GPIO->PUPDR &= ~(	(0x03<<(BTN1_PIN*2)) | (0x03<<(BTN2_PIN*2)) |
-							(0x03<<(BTN3_PIN*2)) | (0x03<<(BTN4_PIN*2)) |
-							(0x03<<(BTNPLUS_PIN*2)) | (0x03<<(BTNMINUS_PIN*2)) );
-
-	BTN_GPIO->PUPDR |=  (	(0x01<<(BTN1_PIN*2)) | (0x01<<(BTN2_PIN*2)) |
-							(0x01<<(BTN3_PIN*2)) | (0x01<<(BTN4_PIN*2)) |
-							(0x01<<(BTNPLUS_PIN*2)) | (0x01<<(BTNMINUS_PIN*2)) );
-}
-
-#endif // 0
-
-// ============================================================================
-// btnCheck -- Get current state of the specified button
-bool btnCheck( int idx )
+// btnCheckState -- Get current state of the specified button
+bool btnCheckState( int idx )
 {
 	btnstate_t newState = (button[idx].Port->IDR & (1<<button[idx].Pin)) ? BTN_UP : BTN_DOWN;
 	if ( newState != button[idx].State ) {
 		button[idx].Changed = true;
 	}
-	else {
-		button[idx].Changed = false;
-	}
 	button[idx].State = newState;
 
 	return button[idx].Changed;
 }
-
 
 // ============================================================================
 // PWM interface
@@ -334,33 +314,6 @@ void InitServo( void )
 	// Enable SERVO_GPIO and TIM1
 	RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;
 
-#if 0
-
-	// COnfig GPIOs as outputs, hi freq, alt func
-	tmp = SERVO_GPIO->MODER & ~( (0x03<<(SERVO1_PIN*2)) | (0x03<<(SERVO2_PIN*2)) |
-								 (0x03<<(SERVO3_PIN*2)) | (0x03<<(SERVO4_PIN*2)) );
-	// Set as alt. function
-	SERVO_GPIO->MODER = tmp |  ( (2<<(SERVO1_PIN*2)) | (2<<(SERVO2_PIN*2)) |
-								 (2<<(SERVO3_PIN*2)) | (2<<(SERVO4_PIN*2)) );
-	// Push/Pull
-	SERVO_GPIO->OTYPER &= ~( (1<<SERVO1_PIN) | (1<<SERVO2_PIN) |
-							 (1<<SERVO3_PIN) | (1<<SERVO4_PIN) );
-	// High speed
-	SERVO_GPIO->OSPEEDR |=  ((3<<(SERVO1_PIN*2)) | (3<<(SERVO2_PIN*2)) |
-							 (3<<(SERVO3_PIN*2)) | (3<<(SERVO4_PIN*2)) );
-	// No pull up or pull down
-	SERVO_GPIO->PUPDR &= ~( (0x03<<(SERVO1_PIN*2)) | (0x03<<(SERVO2_PIN*2)) |
-							(0x03<<(SERVO3_PIN*2)) | (0x03<<(SERVO4_PIN*2)) );
-	// The four PWM outputs are TIM1_CH1 thru TIM1_CH4 which are all Alt. Function 2.
-	// Clear stale Alt. Function configuration
-	SERVO_GPIO->AFR[1] &= ~( (GPIO_AFRH_AFRH0) | (GPIO_AFRH_AFRH1) |
-							 (GPIO_AFRH_AFRH2) | (GPIO_AFRH_AFRH3) );
-	// Connect the PWM output to the GPIO pins
-	SERVO_GPIO->AFR[1] &= ~( (0xF<<(0*4)) | (0xF<<(1*4)) | (0xF<<(2*4)) | (0xF<<(3*4)) );
-	SERVO_GPIO->AFR[1] |= ( (2<<(0*4)) | (2<<(1*4)) | (2<<(2*4)) | (2<<(3*4)) );
-
-#endif	// 0
-
 	for ( int idx=0; idx<SERVO_COUNT; ++idx ) {
 		InitServoPin(idx);
 	}
@@ -369,10 +322,10 @@ void InitServo( void )
 	TIM1->CNT = 0;		// Reset counter
 	TIM1->PSC = PWM_PRESCALE;
 	TIM1->ARR = PWM_MAX_COUNT;
-	TIM1->CCR1 = PWM_DUTY;
-	TIM1->CCR2 = PWM_DUTY;
-	TIM1->CCR3 = PWM_DUTY;
-	TIM1->CCR4 = PWM_DUTY;
+	TIM1->CCR1 = PWM_MID;
+	TIM1->CCR2 = PWM_MID;
+	TIM1->CCR3 = PWM_MID;
+	TIM1->CCR4 = PWM_MID;
 	TIM1->CCMR1 |= (TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1PE |
 					TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2PE);
 	TIM1->CCMR2 |= (TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1PE |
@@ -416,88 +369,26 @@ void InitLED( void )
 	for ( int idx=0; idx<LED_COUNT; ++idx ) {
 		InitLedPin( idx );
 	}
-
-#if 0
-	InitLEDPin( LED_GPIO, PIN_LED1A );
-	InitLEDPin( LED_GPIO, PIN_LED1B );
-	InitLEDPin( LED_GPIO, PIN_LED2A );
-	InitLEDPin( LED_GPIO, PIN_LED2B );
-	InitLEDPin( LED_GPIO, PIN_LED3A );
-	InitLEDPin( LED_GPIO, PIN_LED3B );
-	InitLEDPin( LED_GPIO, PIN_LED4A );
-	InitLEDPin( LED_GPIO, PIN_LED4B );
-#endif	// 0
 }
-
-#if 0
-
-// ============================================================================
-void InitLED( void )
-{
-	uint32_t tmp;
-
-	// Set Output Mode (Mode := 1)
-	tmp = GPIOA->MODER;
-	tmp &= ~(   (3<<(PIN_LED1A*2)) | (3<<(PIN_LED1B*2)) |
-				(3<<(PIN_LED2A*2)) | (3<<(PIN_LED2B*2)) |
-				(3<<(PIN_LED3A*2)) | (3<<(PIN_LED3B*2)) );
-	tmp |= ( (1<<(PIN_LED1A*2)) | (1<<(PIN_LED1B*2)) |
-			 (1<<(PIN_LED2A*2)) | (1<<(PIN_LED2B*2)) |
-			 (1<<(PIN_LED3A*2)) | (1<<(PIN_LED3B*2)) );
-	GPIOA->MODER = tmp;
-
-	// Push-Pull (OTYPER := 0)
-	GPIOA->OTYPER &= ~( (1<<(PIN_LED1A)) | (1<<(PIN_LED1B)) |
-						(1<<(PIN_LED2A)) | (1<<(PIN_LED2B)) |
-						(1<<(PIN_LED3A)) | (1<<(PIN_LED3B)) );
-
-	// Low speed mode (OSPEEDR := 0)
-	GPIOA->OSPEEDR &= ~( (3<<(PIN_LED1A*2)) | (3<<(PIN_LED1B*2)) |
-						 (3<<(PIN_LED2A*2)) | (3<<(PIN_LED2B*2)) |
-						 (3<<(PIN_LED3A*2)) | (3<<(PIN_LED3B*2)) );
-	// No pullup or pulldown
-	GPIOA->PUPDR &= ~( (3<<(PIN_LED1A*2)) | (3<<(PIN_LED1B*2)) |
-					   (3<<(PIN_LED2A*2)) | (3<<(PIN_LED2B*2)) |
-					   (3<<(PIN_LED3A*2)) | (3<<(PIN_LED3B*2)) );
-
-	// Set Output Mode (Mode := 1)
-	tmp = GPIOB->MODER;
-	tmp &= ~(   (3<<(PIN_LED4A*2)) | (3<<(PIN_LED4B*2)) );
-	tmp |= ( (1<<(PIN_LED4A*2)) | (1<<(PIN_LED4B*2)) );
-	GPIOB->MODER = tmp;
-
-	// Push-Pull (OTYPER := 0)
-	GPIOB->OTYPER &= ~( (1<<(PIN_LED4A)) | (1<<(PIN_LED4B)) );
-
-	// Low speed mode (OSPEEDR := 0)
-	GPIOB->OSPEEDR &= ~( (3<<(PIN_LED4A*2)) | (3<<(PIN_LED4B*2)) );
-
-	// No pullup or pulldown
-	GPIOB->PUPDR &= ~( (3<<(PIN_LED4A*2)) | (3<<(PIN_LED4B*2)) );
-
-
-}
-
-#endif	// 0
 
 // ============================================================================
 // ledOff -- Set the pin high to turn the LED off
-void ledOff( int pin )
+void ledOff( int idx )
 {
-	LED_GPIO->BSRR = (1<<pin);
+	led[idx].Port->BSRR = 1<<led[idx].Pin;
 }
 
 // ============================================================================
 // ledOn -- Set the pin low to turn the LED on
-void ledOn( int pin )
+void ledOn( int idx )
 {
-	LED_GPIO->BRR = (1<<pin);
+	led[idx].Port->BRR = 1<<led[idx].Pin;
 }
 // ============================================================================
 // ledToggle -- Toggle a led
-void ledToggle( int pin )
+void ledToggle( int idx )
 {
-	LED_GPIO->ODR ^= (1<<pin);
+	led[idx].Port->ODR ^= 1<<led[idx].Pin;
 }
 
 #ifdef USE_USART
@@ -567,10 +458,28 @@ int usartTxEmpty()
 
 #endif	// USE_USART
 
-
-
 // ============================================================================
+// ============================================================================
+// btnCheck -- Change servo/turnout state when the button changes state
+void btnCheck( void )
+{
+	for ( int idx=0; idx<SERVO_COUNT; ++idx ) {
+		if ( btnCheckState( idx ) ) {
+			button[idx].Changed = false;
 
+			if ( button[idx].State ) {
+				ledOn( idx*2 );
+				ledOff( idx*2 + 1 );
+				servo[idx].targetPos = PWM_MIN;
+			}
+			else {
+				ledOff( idx*2 );
+				ledOn( idx*2 + 1 );
+				servo[idx].targetPos = PWM_MAX;
+			}
+		}
+	}
+}
 
 // ============================================================================
 // Handler for the SysTick interrupt
@@ -587,8 +496,6 @@ int main( void )
 	uint32_t ccount = 0;
 	uint32_t lastTick;
 	int pwm;
-	uint16_t	currentPosition = PWM_MIN;
-	uint16_t	targetPosition = PWM_MIN;
 
 	SystemCoreClockUpdate();
 	SysTick_Config( SystemCoreClock / HB_HZ);
@@ -606,60 +513,39 @@ int main( void )
 
 	configButtons();
 
-#define DEBUG_CYCLE_TIME	20
 	while( 1 ) {
 		if ( curTick > (HB_HZ) ) {
 			curTick -= (HB_HZ);
-//			NucLedToggle();
 
-			if ( ++ccount >= DEBUG_CYCLE_TIME ) {
-				ccount = 0;
-			}
-			targetPosition = ( ccount < (DEBUG_CYCLE_TIME/2) ) ? PWM_MIN : PWM_MAX;
+			// Once per second processing...
+
 		}
 		if ( curTick != lastTick ) {
 			lastTick = curTick;
 
 			// On each timer tick move the turnout slightly closer to the new position
-			if ( currentPosition < targetPosition ) {
-				currentPosition += SERVO_DELTA;
-				if ( currentPosition > targetPosition ) {
-					currentPosition = targetPosition;
-				}
-			}
-			else if ( currentPosition > targetPosition ) {
-				currentPosition -= SERVO_DELTA;
-				if ( currentPosition < targetPosition ) {
-					currentPosition = targetPosition;
-				}
-			}
-			TIM1->CCR1 = currentPosition;
-			TIM1->CCR2 = currentPosition;
-			TIM1->CCR3 = currentPosition;
-			TIM1->CCR4 = currentPosition;
-
-			if ( btnCheck( 0 ) ) {
-				if ( button[0].State ) {
-					ledOn( PIN_LED1A );
-					ledOff( PIN_LED1B );
+			for ( int idx=0; idx<SERVO_COUNT; ++idx ) {
+				if ( servo[idx].currentPos < servo[idx].targetPos ) {
+					servo[idx].currentPos += SERVO_DELTA;
+					if ( servo[idx].currentPos > servo[idx].targetPos ) {
+						servo[idx].currentPos = servo[idx].targetPos;
 					}
-				else {
-					ledOff( PIN_LED1A );
-					ledOn( PIN_LED1B );
 				}
-				button[0].Changed = false;
+				else
+				if ( servo[idx].currentPos > servo[idx].targetPos ) {
+					servo[idx].currentPos -= SERVO_DELTA;
+					if ( servo[idx].currentPos < servo[idx].targetPos ) {
+						servo[idx].currentPos = servo[idx].targetPos;
+					}
+				}
 			}
 
-#if 0
-			ccount += PWM_STEPSIZE;
-			if ( ccount > (PWM_MAX_COUNT-PWM_STEPSIZE) ) {
-				ccount = 0;
-			}
-			TIM1->CCR1 = PWM_MIN;
-			TIM1->CCR2 = 1500;
-			TIM1->CCR3 = 1500;
-			TIM1->CCR4 = 1500;
-#endif	// 0
+			TIM1->CCR1 = servo[SERVO1].currentPos;
+			TIM1->CCR2 = servo[SERVO2].currentPos;
+			TIM1->CCR3 = servo[SERVO3].currentPos;
+			TIM1->CCR4 = servo[SERVO4].currentPos;
+
+			btnCheck();
 		}
 #ifdef USE_USART
 		if ( usartTxEmpty() ) {
