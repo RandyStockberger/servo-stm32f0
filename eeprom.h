@@ -55,14 +55,49 @@
  * 	  restart the write algorithm from the beginning.
  * 	- Write the value's signature followed by the value.
  *
- * Eeprom erase algorithm
- *  - Record signature at page offset 0 and erase count at page offset 1.
- *  - Scan eeprom memory, at each signature record the signature/value pair.
+ * Flash reset algorithm
+ *  - Save signature at page offset 0 and erase count at page offset 1.
+ *  - Scan eeprom memory, at each signature save the signature/value pair.
  *    Overwrite any duplicates with the value at the highest memory location.
  *  - Erase the page
  *  - Increment the saved page erase count
- *  - Write eeprom signature at offset 0 and page erase count at offset 1.
+ *  - Write the saved eeprom signature at offset 0 and the page erase count at
+ *    offset 1.
  *  - Write all saved signature/value pairs to eeprom.
  */
+
+// =============================================================================
+// flashErase -- Erase a page in flash
+static bool flashErase( uint16_t * page );
+
+// =============================================================================
+// flashWriteWord -- Program one word in flash
+static bool flashWriteWord( uint16_t * pWord, uint16_t value );
+
+// =============================================================================
+// eepromInitialize -- Insure that the flash emulating the eeprom is properly configured
+//  return	true on success
+// 			false on failure
+bool eepromInitialize( void );
+
+// =============================================================================
+// eepromRead -- Read one word from eeprom
+//  return	true on success
+// 			false on failure
+// When returning true the uint16_t pointed to by pvalue contains the value read
+// When returning false the uint16_t pointed to by pvalue is undefined
+bool eepromRead( uint16_t signature, uint16_t * pvalue );
+
+// =============================================================================
+// eepromWrite -- Write a value to the 'address' specified by signature
+//  return	true on success
+// 			false on failure
+bool eepromWrite( uint16_t signature, uint16_t value );
+
+// =============================================================================
+// flashReset -- Erase flash and re-record values
+//  return	true on success
+// 			false on failure
+bool flashReset( void );
 
 #endif _EEPROM_H_
