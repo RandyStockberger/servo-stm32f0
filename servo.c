@@ -1,15 +1,16 @@
 // =============================================================================
 //
 // TODO:
+//	X KiCad: Add reset button
+//	X KiCad: Remove unused circuitry (DCC decode, Crystal, etc)
+//	X KiCad/Software: Remove LEDs from SWDIO and SWDCLK to allow debugger to work
+//					and reorganize LED and Button port allocation
+//
 //	KiCad: Fix diode and inductor footprints
-//	KiCad: Add reset button
-//	KiCad: Add MOSFET switch to 5V line to each servo
-//	KiCad: Remove unused circuitry (DCC decode, Crystal, etc)
 //	KiCad: Add circuitry to reverse frog polarity
+//	NB: Requires extra output per SERVO: KiCad: Add MOSFET switch to 5V line to each servo
 //
 //	KiCad/Software: Add a debug LED
-//	KiCad/Software: Remove LEDs from SWDIO and SWDCLK to allow debugger to work
-//					and reorganize LED and Button port allocation
 //
 // =============================================================================
 //
@@ -88,21 +89,6 @@
 // VSS			SYSTEM				32				63		CN10:20
 // 
 // =============================================================================
-// PB0			BTNPLUS				14				26		 CN7:34
-// PB1			BTNMINUS			15				27		CN10:24
-// PB3			BTN1				26				55		CN10:31
-// PB4			BTN2				27				56		CN10:27
-// PB6			BTN3				29				58		CN10:17
-// PB7			BTN4				30				59		 CN7:21
-// =============================================================================
-// PA0			LED1A				 6				14		 CN7:28
-// PA1			LED1B				 7				15		 CN7:30
-// PA4			LED2A				10				20		 CN7:32
-// PA5			LED2B/Nucleo LED	11				21		CN10:11
-// PA6			LED3A				12				22		CN10:13
-// PA7			LED3B				13				23		CN10:15
-// PA12			LED4A				22				45		CN10:12
-// PA15			LED4B				25				50		 CN7:17
 //
 #include "stm32f0xx.h"
 //
