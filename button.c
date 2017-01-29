@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <stdarg.h>
 
+#include "servo.h"
 #include "button.h"
 #include "led.h"
 #include "pwm.h"

@@ -2,14 +2,6 @@
 //
 #ifndef __BUTTON_H__
 
-#include "stm32f0xx.h"
-//
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdarg.h>
-//
-#include "servo.h"
-//
 // ==============================================================================
 // Button Defines
 // ==============================================================================

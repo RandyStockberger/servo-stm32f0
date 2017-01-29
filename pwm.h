@@ -78,9 +78,9 @@ typedef struct {
 	GPIO_TypeDef *	Port;		// GPIO port for this servo
 	uint8_t			Pin;		// GPIO pin for this servo
 	uint16_t		currentPos;	// Current position
-	uint16_t		targetPos;	// Final position at end of servo move
-	uint16_t		minPos;		// Servo position in minimum state
-	uint16_t		maxPos;		// Servo position in maximum state
+	uint16_t		targetPos;	// Final position at end of servo move		Backed in EEPROM
+	uint16_t		minPos;		// Servo position in minimum state			Backed in EEPROM
+	uint16_t		maxPos;		// Servo position in maximum state			Backed in EEPROM
 } servo_t;
 //
 servo_t servo[SERVO_COUNT];	

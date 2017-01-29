@@ -6,20 +6,21 @@
  *   RAM.LENGTH: length of RAM bank 0
  */
 
-/* STM32F072RBT6, 128K Flash, 16K RAM */
+/* STM32F072RBT6, 128K Flash, 16K RAM
 MEMORY
 {
   FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 0x00020000
   RAM  (rwx) : ORIGIN = 0x20000000, LENGTH = 0x00004000
 }
+*/
 
-/* STM32F030K6T6, 32K FLash, 4K RAM
+/* STM32F030K6T6, 32K FLash, 4K RAM */
 MEMORY
 {
   FLASH (rx) : ORIGIN = 0x08000000, LENGTH = 0x00008000
   RAM  (rwx) : ORIGIN = 0x20000000, LENGTH = 0x00001000
 }
-*/
+/**/
 
 /* Linker script to place sections and symbol values. Should be used together
  * with other linker script that defines memory regions FLASH and RAM.
