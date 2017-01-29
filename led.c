@@ -10,7 +10,6 @@
 #include "led.h"
 //
 // Remap LED outputs to not interfer with SWD I/O
-#define AVOID_SWD	1
 //
 // ==============================================================================
 // LED Defines
@@ -30,7 +29,9 @@ led_t led[LED_COUNT] = {
 	{ GPIOB, LED4B_PIN },
 };
 
-#else	// ! AVOID_SWD
+#endif
+
+#ifdef ORIGINAL
 
 led_t led[LED_COUNT] = {
 	{ GPIOA, LED1A_PIN },
@@ -43,7 +44,22 @@ led_t led[LED_COUNT] = {
 	{ GPIOB, LED4B_PIN },
 };
 
-#endif	// AVOID_SWD
+#endif	// ORIGINAL
+
+#ifdef	VER22
+
+led_t led[LED_COUNT] = {
+	{ GPIOA, LED1A_PIN },
+	{ GPIOA, LED1B_PIN },
+	{ GPIOA, LED2A_PIN },
+	{ GPIOA, LED2B_PIN },
+	{ GPIOA, LED3A_PIN },
+	{ GPIOA, LED3B_PIN },
+	{ GPIOA, LED4A_PIN },
+	{ GPIOA, LED4B_PIN },
+};
+
+#endif	// VER22
 //
 // ==============================================================================
 // LED interface

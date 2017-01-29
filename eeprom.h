@@ -102,7 +102,8 @@ bool eepromWrite( uint16_t signature, uint16_t value );
 bool flashReset( void );
 
 #endif _EEPROM_H_
-=======
+//=======
+#if 0
 /**
   ******************************************************************************
   * @file    STM32F0xx_EEPROM_Emulation/inc/eeprom.h 
@@ -186,4 +187,4 @@ uint16_t EE_WriteVariable(uint16_t VirtAddress, uint16_t Data);
 #endif /* __EEPROM_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
->>>>>>> Stashed changes
+#endif

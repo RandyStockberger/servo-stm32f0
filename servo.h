@@ -5,7 +5,6 @@
 // =============================================================================
 //
 // Remap LED outputs to not interfer with SWD I/O
-#define AVOID_SWD	1
 
 #define HB_HZ		1000
 #define HB_50HZ		((HB_HZ)/50)

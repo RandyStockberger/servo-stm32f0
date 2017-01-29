@@ -14,6 +14,9 @@
 enum eBtn { BTN1, BTN2, BTN3, BTN4, BTNPLUS, BTNMINUS };
 
 // Buttons are on GPIOA and GPIOB
+
+#ifdef ORIGINAL
+
 #define BTN1_PIN		4
 #define BTN2_PIN		5
 #define BTN3_PIN		6
@@ -23,6 +26,21 @@ enum eBtn { BTN1, BTN2, BTN3, BTN4, BTNPLUS, BTNMINUS };
 
 #define BTN_GPIOA_MASK ((1<<BTN1_PIN)|(1<<BTN2_PIN)|(1<<BTN3_PIN)|(1<<BTN4_PIN))
 #define BTN_GPIOB_MASK ((1<<BTNPLUS_PIN)|(1<<BTNMINUS_PIN))
+
+#endif	// ORIGINAL
+
+#ifdef VER22
+
+#define BTNPLUS_PIN		0
+#define BTNMINUS_PIN	1
+#define BTN1_PIN		3
+#define BTN2_PIN		4
+#define BTN3_PIN		6
+#define BTN4_PIN		7
+
+#define BTN_GPIOB_MASK ( (1<<BTNPLUS_PIN) | (1<<BTNMINUS_PIN) | (1<<BTN1_PIN) | (1<<BTN2_PIN) | (1<<BTN3_PIN) | (1<<BTN4_PIN) )
+
+#endif // VER22
 
 typedef enum { BTN_DOWN, BTN_UP } btnstate_t;
 

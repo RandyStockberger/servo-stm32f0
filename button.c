@@ -12,6 +12,23 @@
 #include "pwm.h"
 //
 // Initialize button data structures
+
+#ifdef VER22
+
+btn_t button[BTN_COUNT] = {
+	// GPIO		Pin Number		Pin Mask			Button State	Changed?
+	{ GPIOB,	BTN1_PIN,		1<<BTN1_PIN,		BTN_UP,			true },	// BTN1
+	{ GPIOB,	BTN2_PIN,		1<<BTN2_PIN, 		BTN_UP,			true },	// BTN2
+	{ GPIOB,	BTN3_PIN,		1<<BTN3_PIN,		BTN_UP,			true },	// BTN3
+	{ GPIOB,	BTN4_PIN,		1<<BTN4_PIN,		BTN_UP,			true },	// BTN4
+	{ GPIOB,	BTNPLUS_PIN,	1<<BTNPLUS_PIN,		BTN_UP,			true },	// BTNPLUS
+	{ GPIOB,	BTNMINUS_PIN,	1<<BTNMINUS_PIN,	BTN_UP,			true },	// BTNMINUS
+};
+
+#endif	// VER22
+
+#ifdef ORIGINAL
+
 btn_t button[BTN_COUNT] = {
 	// GPIO		Pin Number		Pin Mask			Button State	Changed?
 	{ GPIOA,	BTN1_PIN,		1<<BTN1_PIN,		BTN_UP,			true },	// BTN1
@@ -21,6 +38,8 @@ btn_t button[BTN_COUNT] = {
 	{ GPIOB,	BTNPLUS_PIN,	1<<BTNPLUS_PIN,		BTN_UP,			true },	// BTNPLUS
 	{ GPIOB,	BTNMINUS_PIN,	1<<BTNMINUS_PIN,	BTN_UP,			true },	// BTNMINUS
 };
+
+#endif	// ORIGINAL
 //
 // ==============================================================================
 //
@@ -157,7 +176,7 @@ static void btnMinusUp( void )
 //
 void btnISRProc( void )
 {
-	uint32_t btnBits;					// button map as just read
+	uint32_t btnBits = 0;				// button map as just read
 	static uint32_t btnBitsLast = 0;	// button map from last iteration
 	static uint32_t	btnInputCount;		// Count how many times this bit pattern has been seen
 
@@ -171,8 +190,12 @@ void btnISRProc( void )
 		btnMinusDown,	btnMinusUp,
 	};
 
+#ifdef BTN_GPIOA_MASK
 	btnBits = GPIOA->IDR & BTN_GPIOA_MASK;
+#endif	// BTN_GPIOA_MASK
+#ifdef BTN_GPIOB_MASK
 	btnBits |= GPIOB->IDR & BTN_GPIOB_MASK;
+#endif	// BTN_GPIOB_MASK
 
 	++btnInputCount;
 	if ( btnBits != btnBitsLast ) {		// Something changed since last iteration

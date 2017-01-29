@@ -1,4 +1,5 @@
-<<<<<<< Updated upstream
+#if 0
+
 //
 // eeprom.c
 //
@@ -662,4 +663,5 @@ static uint16_t EE_PageTransfer(uint16_t VirtAddress, uint16_t Data)
   */ 
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
->>>>>>> Stashed changes
+
+#endif	// 0

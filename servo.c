@@ -125,8 +125,8 @@ void SysTick_Handler( void )
 	++curTick;
 }
 //
-	extern uint16_t EE_Init(void);
-	uint16_t VirtAddVarTab[3] = { 1, 2, 3 };
+//	extern uint16_t EE_Init(void);
+//	uint16_t VirtAddVarTab[3] = { 1, 2, 3 };
 // ==============================================================================
 //
 int main( void )
@@ -148,7 +148,7 @@ int main( void )
 	usartInit(9600);
 #endif	// USE_USART
 
-	EE_Init();
+//	EE_Init();
 	ledInit();
 	btnInit();
 	servoInit();
