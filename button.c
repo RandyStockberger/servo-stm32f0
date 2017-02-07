@@ -186,7 +186,8 @@ void btnISRProc( void )
 		btn2Down,		btn2Up,
 		btn3Down,		btn3Up,
 		btn4Down,		btn4Up,
-		btnPlusDown,	btnPlusUp,
+		//btnPlusDown,	btnPlusUp,
+	btn1Down,	btn1Up,
 		btnMinusDown,	btnMinusUp,
 	};
 
