@@ -44,6 +44,7 @@ btn_t button[BTN_COUNT] = {
 // ==============================================================================
 //
 uint32_t	btnBitsState;		// button map of previous debounced buttons
+enum eBtnState	btnLastState = UNDEF;
 //
 // ==============================================================================
 // Button interface
@@ -86,6 +87,7 @@ static void btn1Down( void )
 {
 	ledOff( LED1B );
 	ledOn( LED1A );
+	btnLastState = BTN1DOWN;
 	servo[(int)SERVO1].targetPos = servo[(int)SERVO1].maxPos;
 }
 
@@ -93,6 +95,7 @@ static void btn1Up( void )
 {
 	ledOff( LED1A );
 	ledOn( LED1B );
+	btnLastState = BTN1UP;
 	servo[(int)SERVO1].targetPos = servo[(int)SERVO1].minPos;
 }
 
@@ -100,6 +103,7 @@ static void btn2Down( void )
 {
 	ledOff( LED2B );
 	ledOn( LED2A );
+	btnLastState = BTN2DOWN;
 	servo[(int)SERVO2].targetPos = servo[(int)SERVO2].maxPos;
 }
 
@@ -107,6 +111,7 @@ static void btn2Up( void )
 {
 	ledOff( LED2A );
 	ledOn( LED2B );
+	btnLastState = BTN2UP;
 	servo[(int)SERVO2].targetPos = servo[(int)SERVO2].minPos;
 }
 
@@ -114,6 +119,7 @@ static void btn3Down( void )
 {
 	ledOff( LED3B );
 	ledOn( LED3A );
+	btnLastState = BTN3DOWN;
 	servo[(int)SERVO3].targetPos = servo[(int)SERVO3].maxPos;
 }
 
@@ -121,6 +127,7 @@ static void btn3Up( void )
 {
 	ledOff( LED3A );
 	ledOn( LED3B );
+	btnLastState = BTN3UP;
 	servo[(int)SERVO3].targetPos = servo[(int)SERVO3].minPos;
 }
 
@@ -128,6 +135,7 @@ static void btn4Down( void )
 {
 	ledOff( LED4B );
 	ledOn( LED4A );
+	btnLastState = BTN4DOWN;
 	servo[(int)SERVO4].targetPos = servo[(int)SERVO4].maxPos;
 }
 
@@ -135,31 +143,72 @@ static void btn4Up( void )
 {
 	ledOff( LED4A );
 	ledOn( LED4B );
+	btnLastState = BTN4UP;
 	servo[(int)SERVO4].targetPos = servo[(int)SERVO4].minPos;
 }
 
+// btnPlusDown -- Widen limits of most recently used servo
 static void btnPlusDown( void )
 {
-//	ledOff( LED1B );
-//	ledOn( LED1A );
-//	servo[(int)SERVO1].targetPos = servo[(int)SERVO1].maxPos;
+	int16_t idx;
+	int16_t up;
+
+	if ( btnLastState != UNDEF ) {
+		up = ((int)btnLastState & 1);		// 0: button down/maxPos, 1: means button up/minPos
+		idx = ((int)btnLastState>>1);
+		if ( up ) {			// BTNPLUS -- widen maxPos limit of current servo
+			servo[idx].minPos -= SERVO_ADJUST;
+			if ( servo[idx].minPos < PWM_ABSMIN ) {
+				servo[idx].minPos = PWM_ABSMIN;
+			}
+			servo[idx].targetPos = servo[idx].minPos;
+		}
+		else {
+			servo[idx].maxPos += SERVO_ADJUST;
+			if ( servo[idx].minPos < PWM_ABSMAX ) {
+				servo[idx].minPos = PWM_ABSMAX;
+			}
+			servo[idx].targetPos = servo[idx].maxPos;
+		}
+	}
 }
 
+// btnPlusUp -- No operation on BTNPLUS release
 static void btnPlusUp( void )
 {
-//	ledOff( LED1A );
-//	ledOn( LED1B );
-//	servo[(int)SERVO1].targetPos = servo[(int)SERVO1].minPos;
+//	NOP
 }
 
+// btnMinusDown -- Narrow limits of most recently used servo
 static void btnMinusDown( void )
 {
-	//ledToggle( LED1B );
+	int16_t idx;
+	int16_t up;
+
+	if ( btnLastState != UNDEF ) {
+		up = ((int)btnLastState & 1);		// 0 means button down, 1 means button up
+		idx = ((int)btnLastState>>1);
+		if ( up ) {			// BTNPLUS -- widen maxPos limit of current servo
+			servo[idx].minPos += SERVO_ADJUST;
+			if ( servo[idx].minPos > servo[idx].maxPos ) {
+				servo[idx].minPos = servo[idx].maxPos;
+			}
+			servo[idx].targetPos = servo[idx].minPos;
+		}
+		else {
+			servo[idx].maxPos -= SERVO_ADJUST;
+			if ( servo[idx].maxPos > servo[idx].minPos ) {
+				servo[idx].maxPos = servo[idx].minPos;
+			}
+			servo[idx].targetPos = servo[idx].maxPos;
+		}
+	}
 }
 
+// btnMinusUp -- No operation on BTNMINUS release
 static void btnMinusUp( void )
 {
-//	ledToggle( LED1B );
+//	NOP
 }
 
 //
@@ -186,8 +235,7 @@ void btnISRProc( void )
 		btn2Down,		btn2Up,
 		btn3Down,		btn3Up,
 		btn4Down,		btn4Up,
-		//btnPlusDown,	btnPlusUp,
-	btn1Down,	btn1Up,
+		btnPlusDown,	btnPlusUp,
 		btnMinusDown,	btnMinusUp,
 	};
 

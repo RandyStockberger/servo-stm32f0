@@ -12,8 +12,10 @@
 #define BTN_DEBOUNCE	25
 //
 enum eBtn { BTN1, BTN2, BTN3, BTN4, BTNPLUS, BTNMINUS };
-
-// Buttons are on GPIOA and GPIOB
+//
+enum eBtnState { BTN1DOWN, BTN1UP, BTN2DOWN, BTN2UP, BTN3DOWN, BTN3UP, BTN4DOWN, BTN4UP, UNDEF };
+//
+// Buttons are on GPIOA and/or GPIOB
 
 #ifdef ORIGINAL
 
@@ -55,7 +57,7 @@ typedef struct {
 // ==============================================================================
 //
 extern btn_t button[BTN_COUNT];
-extern enum eBtn	btnLast;
+//extern enum eBtn	btnLast;
 extern uint32_t	btnBitsState;		// button map of previous debounced buttons
 //uint32_t	btnChangedBits;		// map of which button(s) just changed
 //

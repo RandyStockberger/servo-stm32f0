@@ -44,10 +44,14 @@ enum eServo { SERVO1, SERVO2, SERVO3, SERVO4 };
 //
 // Maximum and minimum PWM values
 // PWM_MIN - Min allowed servo position, absolute minimum is approx 200
-#define PWM_MIN			1150	// Clockwise when looking at shaft
+#define PWM_MIN			1400	// 1150 Clockwise when looking at shaft
 //
 // PWM_MAX - Max allowed servo position, absolute maximum is about 2280
-#define PWM_MAX			1700
+#define PWM_MAX			1600	// 1700
+//
+// Absolute limits for servo pulses
+#define PWM_ABSMIN		1000
+#define PWM_ABSMAX		2000
 //
 // Midpoint of the servo range
 #define PWM_MID			((PWM_MIN+PWM_MAX)/2)
@@ -73,6 +77,10 @@ enum eServo { SERVO1, SERVO2, SERVO3, SERVO4 };
 // How much to increment(decrement) servo position for each servo timer tic
 //						(1700    - 1150 ) / ( 5 * 50 )
 #define SERVO_DELTA		(PWM_MAX-PWM_MIN)/(PWM_SPEED*PWM_HZ)
+//
+// How much the min/max is adjusted for each press of BTNPLUS/BTNMINUS
+//
+#define SERVO_ADJUST	((PWM_MAX-PWM_MIN)/128)
 //
 typedef struct {
 	GPIO_TypeDef *	Port;		// GPIO port for this servo

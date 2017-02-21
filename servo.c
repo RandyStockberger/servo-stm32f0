@@ -76,6 +76,14 @@ void SysTick_Handler( void )
 //	extern uint16_t EE_Init(void);
 //	uint16_t VirtAddVarTab[3] = { 1, 2, 3 };
 // ==============================================================================
+void delay( void )
+{
+	volatile uint32_t num;
+	for ( num=0; num<30; ++num ) {
+	}
+}
+//
+// ==============================================================================
 //
 int main( void )
 {
