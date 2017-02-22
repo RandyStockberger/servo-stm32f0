@@ -148,25 +148,29 @@ static void btn4Up( void )
 }
 
 // btnPlusDown -- Widen limits of most recently used servo
+//
+// Do not allow servo min/max position to exceed PWM_ABS??? limits
+//
 static void btnPlusDown( void )
 {
 	int16_t idx;
 	int16_t up;
 
 	if ( btnLastState != UNDEF ) {
-		up = ((int)btnLastState & 1);		// 0: button down/maxPos, 1: means button up/minPos
-		idx = ((int)btnLastState>>1);
-		if ( up ) {			// BTNPLUS -- widen maxPos limit of current servo
+		up = ((int)btnLastState & 1);		// 0: button down, servo at maxPos
+											// 1: button up, servo at minPos
+		idx = ((int)btnLastState>>1);		// Which button was used last
+		if ( up ) {				// Reduce minPos value of current servo to increase range
 			servo[idx].minPos -= SERVO_ADJUST;
 			if ( servo[idx].minPos < PWM_ABSMIN ) {
 				servo[idx].minPos = PWM_ABSMIN;
 			}
 			servo[idx].targetPos = servo[idx].minPos;
 		}
-		else {
+		else {					// Increase maxPos value of current servo to increase range
 			servo[idx].maxPos += SERVO_ADJUST;
-			if ( servo[idx].minPos < PWM_ABSMAX ) {
-				servo[idx].minPos = PWM_ABSMAX;
+			if ( servo[idx].maxPos > PWM_ABSMAX ) {
+				servo[idx].maxPos = PWM_ABSMAX;
 			}
 			servo[idx].targetPos = servo[idx].maxPos;
 		}
@@ -180,24 +184,28 @@ static void btnPlusUp( void )
 }
 
 // btnMinusDown -- Narrow limits of most recently used servo
+//
+// Do not allow servo min/max to cross with opposite limit
+//
 static void btnMinusDown( void )
 {
 	int16_t idx;
 	int16_t up;
 
 	if ( btnLastState != UNDEF ) {
-		up = ((int)btnLastState & 1);		// 0 means button down, 1 means button up
-		idx = ((int)btnLastState>>1);
-		if ( up ) {			// BTNPLUS -- widen maxPos limit of current servo
+		up = ((int)btnLastState & 1);	// up==1: the last servo is at minPos
+										// up==0: the last servo is at maxPos
+		idx = ((int)btnLastState>>1);	// Which button was used last
+		if ( up ) {					// Increase minPos value of current servo to reduce range
 			servo[idx].minPos += SERVO_ADJUST;
 			if ( servo[idx].minPos > servo[idx].maxPos ) {
 				servo[idx].minPos = servo[idx].maxPos;
 			}
 			servo[idx].targetPos = servo[idx].minPos;
 		}
-		else {
+		else {						// Reduce maxPos value of current servo to reduce range
 			servo[idx].maxPos -= SERVO_ADJUST;
-			if ( servo[idx].maxPos > servo[idx].minPos ) {
+			if ( servo[idx].maxPos < servo[idx].minPos ) {
 				servo[idx].maxPos = servo[idx].minPos;
 			}
 			servo[idx].targetPos = servo[idx].maxPos;

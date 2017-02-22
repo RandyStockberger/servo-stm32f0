@@ -101,11 +101,11 @@ void servoInit( void )
 //
 void servoMove( void )
 {
-	//
 	// Move the turnout slightly closer to the new position
 	for ( int idx=0; idx<SERVO_COUNT; ++idx ) {
 		if ( servo[idx].currentPos < servo[idx].targetPos ) {
 			servo[idx].currentPos += SERVO_DELTA;
+			// Check and fix any overshoot
 			if ( servo[idx].currentPos > servo[idx].targetPos ) {
 				servo[idx].currentPos = servo[idx].targetPos;
 			}
@@ -113,6 +113,7 @@ void servoMove( void )
 		else
 		if ( servo[idx].currentPos > servo[idx].targetPos ) {
 			servo[idx].currentPos -= SERVO_DELTA;
+			// Check and fix any undershoot
 			if ( servo[idx].currentPos < servo[idx].targetPos ) {
 				servo[idx].currentPos = servo[idx].targetPos;
 			}
