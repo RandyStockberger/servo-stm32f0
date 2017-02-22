@@ -3,5 +3,12 @@ servo.bin
 servo.map
 servo.srec
 git.notes.txt
+.cproject
+.project
+openocd.cfg
+Unused
+*.txt
+*.xls
+*.bak
 *.o
 *.zip
