@@ -16,13 +16,13 @@
 #ifdef VER22
 
 btn_t button[BTN_COUNT] = {
-	// GPIO		Pin Number		Pin Mask			Button State	Changed?
-	{ GPIOB,	BTN1_PIN,		1<<BTN1_PIN,		BTN_UP,			true },	// BTN1
-	{ GPIOB,	BTN2_PIN,		1<<BTN2_PIN, 		BTN_UP,			true },	// BTN2
-	{ GPIOB,	BTN3_PIN,		1<<BTN3_PIN,		BTN_UP,			true },	// BTN3
-	{ GPIOB,	BTN4_PIN,		1<<BTN4_PIN,		BTN_UP,			true },	// BTN4
-	{ GPIOB,	BTNPLUS_PIN,	1<<BTNPLUS_PIN,		BTN_UP,			true },	// BTNPLUS
-	{ GPIOB,	BTNMINUS_PIN,	1<<BTNMINUS_PIN,	BTN_UP,			true },	// BTNMINUS
+	// Port		Pin				PinMask
+	{ GPIOB,	BTN1_PIN,		1<<BTN1_PIN,},		// BTN1
+	{ GPIOB,	BTN2_PIN,		1<<BTN2_PIN, },		// BTN2
+	{ GPIOB,	BTN3_PIN,		1<<BTN3_PIN,},		// BTN3
+	{ GPIOB,	BTN4_PIN,		1<<BTN4_PIN,},		// BTN4
+	{ GPIOB,	BTNPLUS_PIN,	1<<BTNPLUS_PIN,},	// BTNPLUS
+	{ GPIOB,	BTNMINUS_PIN,	1<<BTNMINUS_PIN,},	// BTNMINUS
 };
 
 #endif	// VER22
@@ -30,13 +30,13 @@ btn_t button[BTN_COUNT] = {
 #ifdef ORIGINAL
 
 btn_t button[BTN_COUNT] = {
-	// GPIO		Pin Number		Pin Mask			Button State	Changed?
-	{ GPIOA,	BTN1_PIN,		1<<BTN1_PIN,		BTN_UP,			true },	// BTN1
-	{ GPIOA,	BTN2_PIN,		1<<BTN2_PIN, 		BTN_UP,			true },	// BTN2
-	{ GPIOA,	BTN3_PIN,		1<<BTN3_PIN,		BTN_UP,			true },	// BTN3
-	{ GPIOA,	BTN4_PIN,		1<<BTN4_PIN,		BTN_UP,			true },	// BTN4
-	{ GPIOB,	BTNPLUS_PIN,	1<<BTNPLUS_PIN,		BTN_UP,			true },	// BTNPLUS
-	{ GPIOB,	BTNMINUS_PIN,	1<<BTNMINUS_PIN,	BTN_UP,			true },	// BTNMINUS
+	// Port		Pin				PinMask
+	{ GPIOA,	BTN1_PIN,		1<<BTN1_PIN, },		// BTN1
+	{ GPIOA,	BTN2_PIN,		1<<BTN2_PIN, },		// BTN2
+	{ GPIOA,	BTN3_PIN,		1<<BTN3_PIN, },		// BTN3
+	{ GPIOA,	BTN4_PIN,		1<<BTN4_PIN, },		// BTN4
+	{ GPIOB,	BTNPLUS_PIN,	1<<BTNPLUS_PIN, },	// BTNPLUS
+	{ GPIOB,	BTNMINUS_PIN,	1<<BTNMINUS_PIN, },	// BTNMINUS
 };
 
 #endif	// ORIGINAL
@@ -85,64 +85,64 @@ void btnInit( void )
 // Each of these procedures is called when the associated state change is detected
 static void btn1Down( void )
 {
-	ledOff( LED1B );
-	ledOn( LED1A );
+	//ledOff( LED1B );
+	//ledOn( LED1A );
 	btnLastState = BTN1DOWN;
 	servo[(int)SERVO1].targetPos = servo[(int)SERVO1].maxPos;
 }
 
 static void btn1Up( void )
 {
-	ledOff( LED1A );
-	ledOn( LED1B );
+	//ledOff( LED1A );
+	//ledOn( LED1B );
 	btnLastState = BTN1UP;
 	servo[(int)SERVO1].targetPos = servo[(int)SERVO1].minPos;
 }
 
 static void btn2Down( void )
 {
-	ledOff( LED2B );
-	ledOn( LED2A );
+	//ledOff( LED2B );
+	//ledOn( LED2A );
 	btnLastState = BTN2DOWN;
 	servo[(int)SERVO2].targetPos = servo[(int)SERVO2].maxPos;
 }
 
 static void btn2Up( void )
 {
-	ledOff( LED2A );
-	ledOn( LED2B );
+	//ledOff( LED2A );
+	//ledOn( LED2B );
 	btnLastState = BTN2UP;
 	servo[(int)SERVO2].targetPos = servo[(int)SERVO2].minPos;
 }
 
 static void btn3Down( void )
 {
-	ledOff( LED3B );
-	ledOn( LED3A );
+	//ledOff( LED3B );
+	//ledOn( LED3A );
 	btnLastState = BTN3DOWN;
 	servo[(int)SERVO3].targetPos = servo[(int)SERVO3].maxPos;
 }
 
 static void btn3Up( void )
 {
-	ledOff( LED3A );
-	ledOn( LED3B );
+	//ledOff( LED3A );
+	//ledOn( LED3B );
 	btnLastState = BTN3UP;
 	servo[(int)SERVO3].targetPos = servo[(int)SERVO3].minPos;
 }
 
 static void btn4Down( void )
 {
-	ledOff( LED4B );
-	ledOn( LED4A );
+	//ledOff( LED4B );
+	//ledOn( LED4A );
 	btnLastState = BTN4DOWN;
 	servo[(int)SERVO4].targetPos = servo[(int)SERVO4].maxPos;
 }
 
 static void btn4Up( void )
 {
-	ledOff( LED4A );
-	ledOn( LED4B );
+	//ledOff( LED4A );
+	//ledOn( LED4B );
 	btnLastState = BTN4UP;
 	servo[(int)SERVO4].targetPos = servo[(int)SERVO4].minPos;
 }
@@ -274,6 +274,23 @@ void btnISRProc( void )
 		}
 		btnBitsState = btnBitsLast;
 	}
+}
+//
+// ==============================================================================
+// btnIsDown -- Return current button/switch state
+//
+int btnIsDown( enum eBtn idx )
+{
+	uint32_t state;
+
+	if ( idx < BTN1 || idx > BTN4 ) {
+		return 0;			// Non-existent buttons are always up
+	}
+
+	//btnBits = GPIOB->IDR & BTN_GPIOB_MASK;
+	state = button[idx].Port->IDR & button[idx].PinMask;
+
+	return state ? 1 : 0;
 }
 //
 // ==============================================================================

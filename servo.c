@@ -104,11 +104,13 @@ int main( void )
 	usartInit(9600);
 #endif	// USE_USART
 
-//	EE_Init();
-	ledInit();
-	btnInit();
-	servoInit();
+//	EE_Init();			// Initialize EEPROM (flash) system
+	ledInit();			// Initialize led interface
+	btnInit();			// Initialize button interface
+	servoInit();		// Initialize servo pwm
 	
+	servoSetCurrent();	// Set servo pwm values to current switch positions
+
 	while( 1 ) {
 		if ( lastTick != curTick ) {
 			//

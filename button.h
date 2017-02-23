@@ -50,23 +50,19 @@ typedef struct {
 	GPIO_TypeDef *	Port;
 	uint8_t			Pin;
 	uint32_t		PinMask;
-	btnstate_t		State;
-	bool			Changed;
 } btn_t;
 //
 // ==============================================================================
 //
 extern btn_t button[BTN_COUNT];
-//extern enum eBtn	btnLast;
 extern uint32_t	btnBitsState;		// button map of previous debounced buttons
-//uint32_t	btnChangedBits;		// map of which button(s) just changed
 //
 // ==============================================================================
 // External button procedures
 //
 extern void btnInit( void );		// btnInit -- Initialize all the buttons
 extern void btnISRProc( void );		// btnISRProc -- Poll the buttons on each heartbeat interrupt
-//extern bool btnState( enum eBtn idx ); // btnState -- Get current state of the specified button
+extern int btnIsDown( enum eBtn );	// btnIsDown -- Return current button/switch state
 
 #endif	// __BUTTON_H__
 

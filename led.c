@@ -89,7 +89,7 @@ void ledConfigPin( enum eLed idx )
 	led[idx].Port->PUPDR &= (3<<(led[idx].Pin*2));
 	
 	// Make sure the LED is off
-	led[idx].Port->BSRR = 1<<led[idx].Pin;
+	led[idx].Port->BRR = 1<<led[idx].Pin;
 }
 //
 // ==============================================================================
@@ -107,7 +107,7 @@ void ledInit( void )
 //
 void ledOff( enum eLed idx )
 {
-	led[idx].Port->BSRR = 1<<led[idx].Pin;
+	led[idx].Port->BRR = 1<<led[idx].Pin;
 }
 //
 // ==============================================================================
@@ -115,7 +115,7 @@ void ledOff( enum eLed idx )
 //
 void ledOn( enum eLed idx )
 {
-	led[idx].Port->BRR = 1<<led[idx].Pin;
+	led[idx].Port->BSRR = 1<<led[idx].Pin;
 }
 //
 // ==============================================================================

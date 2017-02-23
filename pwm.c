@@ -8,6 +8,8 @@
 //
 #include "servo.h"
 #include "pwm.h"
+#include "led.h"
+#include "button.h"
 
 // =============================================================================
 // Servo Data
@@ -65,10 +67,15 @@ void servoInit( void )
 	//
 	TIM1->ARR = PWM_MAX_COUNT;	// Auto Reload Register
 	//
-	TIM1->CCR1 = PWM_MID;		// Capture/Compare values
-	TIM1->CCR2 = PWM_MID;
-	TIM1->CCR3 = PWM_MID;
-	TIM1->CCR4 = PWM_MID;
+//	TIM1->CCR1 = PWM_MID;		// Capture/Compare values
+//	TIM1->CCR2 = PWM_MID;
+//	TIM1->CCR3 = PWM_MID;
+//	TIM1->CCR4 = PWM_MID;
+
+	TIM1->CCR1 = 0;		// Capture/Compare values
+	TIM1->CCR2 = 0;
+	TIM1->CCR3 = 0;
+	TIM1->CCR4 = 0;
 	// Configure all channels for output (Compare mode):
 	//	CCMRx.OCxM  = 0b110 : PWM Mode 1
 	//	CCMRx.CCxS  = 0b00  : Channel is output
@@ -97,6 +104,19 @@ void servoInit( void )
 }
 //
 // ==============================================================================
+// servoSetCurrent -- Read servo buttons and assign servo positions
+//
+void servoSetCurrent( void )
+{
+	enum eServo idx;
+
+	for ( idx=SERVO1; idx<=SERVO4; ++idx ) {
+		// The real currentPos is unknowable, set it to the targetPos
+		servo[idx].targetPos = servo[idx].currentPos = btnIsDown( idx ) ? PWM_MIN : PWM_MAX;
+	}
+}
+//
+// ==============================================================================
 // servoMove -- Move the servo closer to the target position by an increment
 //
 void servoMove( void )
@@ -110,13 +130,22 @@ void servoMove( void )
 				servo[idx].currentPos = servo[idx].targetPos;
 			}
 		}
-		else
-		if ( servo[idx].currentPos > servo[idx].targetPos ) {
+		else if ( servo[idx].currentPos > servo[idx].targetPos ) {
 			servo[idx].currentPos -= SERVO_DELTA;
 			// Check and fix any undershoot
 			if ( servo[idx].currentPos < servo[idx].targetPos ) {
 				servo[idx].currentPos = servo[idx].targetPos;
 			}
+		}
+		//
+		// If the servo is at the target position turn on one of the LEDs
+		ledOff( idx*2 );
+		ledOff( idx*2 + 1 );
+		if ( servo[idx].currentPos == servo[idx].minPos ) {
+			ledOn( idx*2 + 1 );
+		}
+		else if ( servo[idx].currentPos == servo[idx].maxPos ) {
+			ledOn( idx*2 );
 		}
 	}
 

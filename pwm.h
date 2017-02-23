@@ -96,6 +96,7 @@ servo_t servo[SERVO_COUNT];
 //
 extern void servoInit( void );		// servoInit -- Initialize pwm subsystem to drive the servos
 extern void servoMove( void );		// servoMove -- Move the servo slightly closer to the target position
+extern void servoSetCurrent( void );// servoSetCurrent -- Read servo buttons and assign servo positions
 
 #endif	// __PWM_H__
 //
